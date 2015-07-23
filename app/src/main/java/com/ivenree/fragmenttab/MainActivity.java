@@ -34,6 +34,8 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
     private TextView mContactText;
     private TextView mFriendsText;
     private TextView mAccountText;
+
+    private FragmentManager manager;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -65,6 +67,7 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
         mChatFragment = new ChatFragment();
         mContactFragment = new ContactFragment();
         mFriendFragment = new FriendFragment();
+        mAccountFragment = new AccountFragment();
 
 
         mChatText = (TextView) findViewById(R.id.id_tab_chat_text);
@@ -72,16 +75,35 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
         mFriendsText = (TextView) findViewById(R.id.id_tab_friends_text);
         mAccountText = (TextView) findViewById(R.id.id_tab_account_text);
 
+        manager = getSupportFragmentManager();
+        FragmentTransaction transaction = manager.beginTransaction();
+        //add fragment to fragmentlayout
+        transaction.add(R.id.id_tab_content, mChatFragment);
+        transaction.add(R.id.id_tab_content, mContactFragment);
+        transaction.add(R.id.id_tab_content, mFriendFragment);
+        transaction.add(R.id.id_tab_content, mAccountFragment);
+        //show Chat view when opening
+        if(mContactFragment != null){
+            transaction.hide(mContactFragment);
+        }
+        if(mFriendFragment != null){
+            transaction.hide(mFriendFragment);
+        }
+        if(mAccountFragment != null){
+            transaction.hide(mAccountFragment);
+        }
+        transaction.commit();
+
     }
 
     /*
      *
      */
     private void setSelect(int index){
-        FragmentManager manager = getSupportFragmentManager();
+
         FragmentTransaction transaction = manager.beginTransaction();
-        //
-        highFragmentView(transaction);
+        //hide fragment before showing next
+        hideFragmentView(transaction);
 
         switch(index){
             case 0:
@@ -90,7 +112,6 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
                     mChatFragment = new ChatFragment();
                 }
                 else{
-                    transaction.add(R.id.id_tab_content, mChatFragment);
                     transaction.show(mChatFragment);
                 }
                 //show image pressed status
@@ -103,7 +124,7 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
                     mContactFragment = new ContactFragment();
                 }
                 else{
-                    transaction.add(R.id.id_tab_content, mContactFragment);
+
                     transaction.show(mContactFragment);
                 }
                 mImageContact.setImageResource(R.mipmap.ic_contacts_press);
@@ -114,7 +135,7 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
                     mFriendFragment = new FriendFragment();
                 }
                 else{
-                    transaction.add(R.id.id_tab_content, mFriendFragment);
+
                     transaction.show(mFriendFragment);
                 }
                 mImageFriend.setImageResource(R.mipmap.ic_friends_press);
@@ -125,7 +146,7 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
                     mAccountFragment = new AccountFragment();
                 }
                 else{
-                    transaction.add(R.id.id_tab_content, mAccountFragment);
+
                     transaction.show(mAccountFragment);
                 }
                 mImageAccount.setImageResource(R.mipmap.ic_person_press);
@@ -134,9 +155,10 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
             default:
                 break;
         }
+        transaction.commit();
     }
 
-    private void highFragmentView(FragmentTransaction transaction) {
+    private void hideFragmentView(FragmentTransaction transaction) {
         if(mChatFragment != null){
             transaction.hide(mChatFragment);
         }
@@ -149,6 +171,7 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
         if(mAccountFragment != null){
             transaction.hide(mAccountFragment);
         }
+
     }
 
 
