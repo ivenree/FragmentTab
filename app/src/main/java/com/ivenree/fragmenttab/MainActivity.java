@@ -4,12 +4,15 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
+import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.view.ViewPager;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+
+import java.util.ArrayList;
+import java.util.List;
 
 
 public class MainActivity extends FragmentActivity implements View.OnClickListener{
@@ -19,7 +22,7 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
     private LinearLayout mTabContact;
     private LinearLayout mTabFriend;
     private LinearLayout mTabAccount;
-
+    //
     private ImageButton mImageChat;
     private ImageButton mImageContact;
     private ImageButton mImageFriend;
@@ -35,7 +38,9 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
     private TextView mFriendsText;
     private TextView mAccountText;
 
-    private FragmentManager manager;
+    private ViewPager mViewPager;
+    private FragmentPagerAdapter mAdapter;
+    private List<Fragment> mFragmentList;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -54,6 +59,9 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
     }
 
     private void initView() {
+
+        mViewPager = (ViewPager) findViewById(R.id.viewPager);
+
         mTabChat = (LinearLayout) findViewById(R.id.id_tab_chats);
         mTabContact = (LinearLayout) findViewById(R.id.id_tab_contacts);
         mTabFriend = (LinearLayout) findViewById(R.id.id_tab_friends);
@@ -64,132 +72,102 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
         mImageFriend = (ImageButton) findViewById(R.id.id_tab_friends_img);
         mImageAccount = (ImageButton) findViewById(R.id.id_tab_account_img);
 
-        mChatFragment = new ChatFragment();
-        mContactFragment = new ContactFragment();
-        mFriendFragment = new FriendFragment();
-        mAccountFragment = new AccountFragment();
-
-
         mChatText = (TextView) findViewById(R.id.id_tab_chat_text);
         mContactText = (TextView) findViewById(R.id.id_tab_contact_text);
         mFriendsText = (TextView) findViewById(R.id.id_tab_friends_text);
         mAccountText = (TextView) findViewById(R.id.id_tab_account_text);
 
-        manager = getSupportFragmentManager();
-        FragmentTransaction transaction = manager.beginTransaction();
-        //add fragment to fragmentlayout
-        transaction.add(R.id.id_tab_content, mChatFragment);
-        transaction.add(R.id.id_tab_content, mContactFragment);
-        transaction.add(R.id.id_tab_content, mFriendFragment);
-        transaction.add(R.id.id_tab_content, mAccountFragment);
-        //show Chat view when opening
-        if(mContactFragment != null){
-            transaction.hide(mContactFragment);
-        }
-        if(mFriendFragment != null){
-            transaction.hide(mFriendFragment);
-        }
-        if(mAccountFragment != null){
-            transaction.hide(mAccountFragment);
-        }
-        transaction.commit();
+        mChatFragment = new ChatFragment();
+        mContactFragment = new ContactFragment();
+        mFriendFragment = new FriendFragment();
+        mAccountFragment = new AccountFragment();
 
+        mFragmentList = new ArrayList<Fragment>();
+        mFragmentList.add(mChatFragment);
+        mFragmentList.add(mContactFragment);
+        mFragmentList.add(mFriendFragment);
+        mFragmentList.add(mAccountFragment);
+
+        mAdapter = new FragmentPagerAdapter(getSupportFragmentManager()) {
+            @Override
+            public Fragment getItem(int i) {
+                return mFragmentList.get(i);
+            }
+
+            @Override
+            public int getCount() {
+                return mFragmentList.size();
+            }
+        };
+
+        mViewPager.setAdapter(mAdapter);
+
+        mViewPager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+
+            @Override
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+                //
+            }
+
+            @Override
+            public void onPageSelected(int position) {
+                //reset images and texts
+                resetImageAndText();
+                switch(position){
+                    case 0:
+                        mImageChat.setImageResource(R.mipmap.ic_chat_press);
+                        mChatText.setTextColor(Color.parseColor("#777777"));
+                        break;
+                    case 1:
+                        mImageContact.setImageResource(R.mipmap.ic_contacts_press);
+                        mContactText.setTextColor(Color.parseColor("#777777"));
+                        break;
+                    case 2:
+                        mImageFriend.setImageResource(R.mipmap.ic_friends_press);
+                        mFriendsText.setTextColor(Color.parseColor("#777777"));
+                        break;
+                    case 3:
+                        mImageAccount.setImageResource(R.mipmap.ic_person_press);
+                        mAccountText.setTextColor(Color.parseColor("#777777"));
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+            @Override
+            public void onPageScrollStateChanged(int state) {
+                //
+            }
+
+        });
     }
-
-    /*
-     *
-     */
-    private void setSelect(int index){
-
-        FragmentTransaction transaction = manager.beginTransaction();
-        //hide fragment before showing next
-        hideFragmentView(transaction);
-
-        switch(index){
-            case 0:
-                //show fragment
-                if(mChatFragment == null){
-                    mChatFragment = new ChatFragment();
-                }
-                else{
-                    transaction.show(mChatFragment);
-                }
-                //show image pressed status
-                mImageChat.setImageResource(R.mipmap.ic_chat_press);
-                //show text pressed status
-                mChatText.setTextColor(Color.parseColor("#777777"));
-                break;
-            case 1:
-                if(mContactFragment == null){
-                    mContactFragment = new ContactFragment();
-                }
-                else{
-
-                    transaction.show(mContactFragment);
-                }
-                mImageContact.setImageResource(R.mipmap.ic_contacts_press);
-                mContactText.setTextColor(Color.parseColor("#777777"));
-                break;
-            case 2:
-                if(mFriendFragment == null){
-                    mFriendFragment = new FriendFragment();
-                }
-                else{
-
-                    transaction.show(mFriendFragment);
-                }
-                mImageFriend.setImageResource(R.mipmap.ic_friends_press);
-                mFriendsText.setTextColor(Color.parseColor("#777777"));
-                break;
-            case 3:
-                if(mAccountFragment == null){
-                    mAccountFragment = new AccountFragment();
-                }
-                else{
-
-                    transaction.show(mAccountFragment);
-                }
-                mImageAccount.setImageResource(R.mipmap.ic_person_press);
-                mAccountText.setTextColor(Color.parseColor("#777777"));
-                break;
-            default:
-                break;
-        }
-        transaction.commit();
-    }
-
-    private void hideFragmentView(FragmentTransaction transaction) {
-        if(mChatFragment != null){
-            transaction.hide(mChatFragment);
-        }
-        if(mContactFragment != null){
-            transaction.hide(mContactFragment);
-        }
-        if(mFriendFragment != null){
-            transaction.hide(mFriendFragment);
-        }
-        if(mAccountFragment != null){
-            transaction.hide(mAccountFragment);
-        }
-
-    }
-
 
     @Override
     public void onClick(View v) {
         resetImageAndText();
         switch (v.getId()){
             case R.id.id_tab_chats:
-                setSelect(0);
+                //set View
+                mViewPager.setCurrentItem(0);
+                //set Image and Text pressed status
+                mImageChat.setImageResource(R.mipmap.ic_chat_press);
+                mChatText.setTextColor(Color.parseColor("#777777"));
                 break;
             case R.id.id_tab_contacts:
-                setSelect(1);
+                mViewPager.setCurrentItem(1);
+                mImageContact.setImageResource(R.mipmap.ic_contacts_press);
+                mContactText.setTextColor(Color.parseColor("#777777"));
                 break;
             case R.id.id_tab_friends:
-                setSelect(2);
+                mViewPager.setCurrentItem(2);
+                mImageFriend.setImageResource(R.mipmap.ic_friends_press);
+                mFriendsText.setTextColor(Color.parseColor("#777777"));
                 break;
             case R.id.id_tab_account:
-                setSelect(3);
+                mViewPager.setCurrentItem(3);
+                mImageAccount.setImageResource(R.mipmap.ic_person_press);
+                mAccountText.setTextColor(Color.parseColor("#777777"));
                 break;
             default:
                 break;
