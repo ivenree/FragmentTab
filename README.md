@@ -1,2 +1,2 @@
-# FragmentTab
-Implement Tab using fragment
+# ScrollableTab
+Implement scrollable tab using Fragment and ViewPager
