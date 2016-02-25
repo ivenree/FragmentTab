@@ -1,2 +1,2 @@
-# ScrollableTab
-Implement scrollable tab using Fragment and ViewPager
+#Android ScrollableTab 
+Implement scrollable tab using Fragments and ViewPager
